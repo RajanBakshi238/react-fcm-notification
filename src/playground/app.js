@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDeviceToken, registerMessageReceiver } from "./firebase.config";
+import { getDeviceToken, onMessageListener } from "./firebase.config";
 import QRCode from "react-qr-code";
 import QrScanner from "./components/QrScanner";
 
@@ -7,6 +7,8 @@ function App() {
   const [token, setToken] = useState();
   const [showQr, setShowQr] = useState(true);
   const [showQrReader, setShowQrReader] = useState(false);
+  const [show, setShow] = useState(false);
+  const [notification, setNotification] = useState({ title: "", body: "" });
 
   console.log(token);
 
@@ -25,8 +27,22 @@ function App() {
       });
     })();
 
-    // registerMessageReceiver();
+
+	onMessageListener()
+    .then((payload) => {
+      setShow(true);
+      setNotification({
+        title: payload.data.title,
+        body: payload.data.body,
+      });
+      console.log(payload);
+
+    })
+    .catch((err) => console.log("failed: ", err));
   }, []);
+
+  
+	console.log(show);
 
   const qrReaderHandler = () => {
     setShowQrReader(true);
@@ -53,6 +69,7 @@ function App() {
           {/* <QrScanner2 show={show} notification={notification}/> <button onClick={QrHandler}>Show Qr Code</button> */}
         </>
       )}
+      
     </div>
   );
 }
